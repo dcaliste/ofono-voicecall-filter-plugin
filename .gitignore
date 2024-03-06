@@ -1,0 +1,11 @@
+CMakeCache.txt
+CMakeFiles/
+Makefile
+RPMS/
+cmake_install.cmake
+documentation.list
+install_manifest.txt
+src/CMakeFiles/
+src/Makefile
+src/cmake_install.cmake
+src/libvoicecallfilter.so
