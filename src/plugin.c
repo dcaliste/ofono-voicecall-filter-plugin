@@ -48,6 +48,7 @@ static unsigned int _incoming(struct ofono_voicecall *vc,
                               ofono_voicecall_filter_incoming_cb_t cb,
                               void *data)
 {
+    DBG("voicecall-filter: getting an incoming call.");
     if (cb) {
         cb(vcf_blocker_evaluate(_blocker, &call->phone_number), data);
     }
@@ -67,11 +68,15 @@ static int _init_voicecall_filter(void)
 
     _blocker = vcf_blocker_new();
 
+    DBG("Initialising voicecall filter plugin.");
+
     return ofono_voicecall_filter_register(&_filter);
 }
 
 static void _exit_voicecall_filter(void)
 {
+    DBG("De-initialising voicecall filter plugin.");
+
     ofono_voicecall_filter_unregister(&_filter);
     g_object_unref(_blocker);
 }

@@ -6,6 +6,7 @@ add_library(voicecallfilter SHARED ${SRC})
 
 add_definitions(-DVERSION=\"${PROJECT_VERSION}\")
 
+set_target_properties(voicecallfilter PROPERTIES PREFIX "")
 target_link_libraries(voicecallfilter
   PkgConfig::GOBJECT
   PkgConfig::GIO)

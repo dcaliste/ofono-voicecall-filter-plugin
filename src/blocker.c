@@ -139,6 +139,7 @@ VcfBlocker* vcf_blocker_new(void)
 static gboolean _matchNumber(gchar *filters[], const gchar *number)
 {
     for (guint i = 0; filters && filters[i]; i++) {
+        DBG("testing '%s' against '%s'.", number, filters[i]);
         if (!g_strcmp0(filters[i], number)) {
             return TRUE;
         }
