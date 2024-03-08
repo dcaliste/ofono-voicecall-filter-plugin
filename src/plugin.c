@@ -19,10 +19,12 @@
  *
  */
 
-#include <ofono/log.h>
-#include <ofono/misc.h>
 #include <ofono/plugin.h>
 #include <ofono/voicecall-filter.h>
+
+#include "blocker.h"
+
+static VcfBlocker* _blocker = NULL;
 
 static void _cancel(unsigned int id)
 {
@@ -46,12 +48,8 @@ static unsigned int _incoming(struct ofono_voicecall *vc,
                               ofono_voicecall_filter_incoming_cb_t cb,
                               void *data)
 {
-    static char buffer[OFONO_PHONE_NUMBER_BUFFER_SIZE];
-
-    DBG("'%s' is calling, should I block ?", ofono_phone_number_to_string(&call->phone_number, buffer));
-    // No op
     if (cb) {
-        cb(OFONO_VOICECALL_FILTER_INCOMING_CONTINUE, data);
+        cb(vcf_blocker_evaluate(_blocker, &call->phone_number), data);
     }
     return 0;
 }
@@ -67,12 +65,15 @@ static int _init_voicecall_filter(void)
     _filter.filter_dial = _dial;
     _filter.filter_incoming = _incoming;
 
+    _blocker = vcf_blocker_new();
+
     return ofono_voicecall_filter_register(&_filter);
 }
 
 static void _exit_voicecall_filter(void)
 {
     ofono_voicecall_filter_unregister(&_filter);
+    g_object_unref(_blocker);
 }
 
 OFONO_PLUGIN_DEFINE("voicecall-filter", "block incoming calls based on numbers",

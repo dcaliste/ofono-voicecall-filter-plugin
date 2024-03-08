@@ -25,3 +25,4 @@ make DESTDIR=%{buildroot} install
 %defattr(-,root,root,-)
 %license LICENSE
 %{_libdir}/ofono/plugins/*.so
+%{_datadir}/glib-2.0/schemas/*.xml

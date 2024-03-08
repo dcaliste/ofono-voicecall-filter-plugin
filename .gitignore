@@ -3,9 +3,14 @@ CMakeFiles/
 Makefile
 RPMS/
 cmake_install.cmake
+CTestTestfile.cmake
 documentation.list
 install_manifest.txt
 src/CMakeFiles/
 src/Makefile
 src/cmake_install.cmake
+src/CTestTestfile.cmake
 src/libvoicecallfilter.so
+src/gschemas.compiled
+tests/tst_blocker
+tests/CTestTestfile.cmake
