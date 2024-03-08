@@ -62,9 +62,6 @@ struct SignalSpy
 static void _triggered(struct SignalSpy *spy)
 {
     spy->triggered += 1;
-    if (spy->loop) {
-        g_main_loop_quit(spy->loop);
-    }
 }
 
 static void signal_spy_new(struct SignalSpy *spy, gpointer obj, const gchar *signal)
@@ -81,30 +78,6 @@ static void signal_spy_free(struct SignalSpy *spy)
     g_signal_handler_disconnect(spy->obj, spy->id);
 }
 
-static gboolean _timeout_triggered(gpointer data)
-{
-    gboolean *result = (gboolean*)data;
-    *result = FALSE;
-
-    return G_SOURCE_REMOVE;
-}
-
-static gboolean _wait(struct SignalSpy *spy, guint timeout)
-{
-    GMainLoop *loop = g_main_loop_new(NULL, TRUE);
-    gboolean result = TRUE;
-
-    spy->loop = g_main_loop_ref(loop);
-    g_timeout_add(timeout, _timeout_triggered, &result);
-    g_timeout_add(timeout, G_SOURCE_FUNC(g_main_loop_quit), loop);
-    g_main_loop_run(loop);
-    g_main_loop_unref(loop);
-    g_main_loop_unref(spy->loop);
-    spy->loop = NULL;
-
-    return result;
-}
-
 static void _test_ignored(void)
 {
     VcfBlocker *blocker = vcf_blocker_new();
@@ -114,16 +87,13 @@ static void _test_ignored(void)
     struct SignalSpy notify;
 
     g_assert_true(VCF_IS_BLOCKER(blocker));
-    signal_spy_new(&notify, blocker, "notify::ignored-numbers");
-    g_assert_true(_wait(&notify, 3000));
-    g_assert_cmpint(notify.triggered, ==, 1);
     
     g_assert_null(vcf_blocker_get_ignored_numbers(blocker));
     g_assert_null(vcf_blocker_get_blocked_numbers(blocker));
 
+    signal_spy_new(&notify, blocker, "notify::ignored-numbers");
     g_settings_set_strv(settings, "ignored-numbers", ignored);
-    g_assert_true(_wait(&notify, 3000));
-    g_assert_cmpint(notify.triggered, ==, 2);
+    g_assert_cmpint(notify.triggered, ==, 1);
     signal_spy_free(&notify);
     g_assert_nonnull(vcf_blocker_get_ignored_numbers(blocker));
     g_assert_null(vcf_blocker_get_blocked_numbers(blocker));
@@ -159,16 +129,13 @@ static void _test_blocked(void)
     struct SignalSpy notify;
 
     g_assert_true(VCF_IS_BLOCKER(blocker));
-    signal_spy_new(&notify, blocker, "notify::blocked-numbers");
-    g_assert_true(_wait(&notify, 3000));
-    g_assert_cmpint(notify.triggered, ==, 1);
     
     g_assert_null(vcf_blocker_get_ignored_numbers(blocker));
     g_assert_null(vcf_blocker_get_blocked_numbers(blocker));
 
+    signal_spy_new(&notify, blocker, "notify::blocked-numbers");
     g_settings_set_strv(settings, "blocked-numbers", blocked);
-    g_assert_true(_wait(&notify, 3000));
-    g_assert_cmpint(notify.triggered, ==, 2);
+    g_assert_cmpint(notify.triggered, ==, 1);
     signal_spy_free(&notify);
     g_assert_null(vcf_blocker_get_ignored_numbers(blocker));
     g_assert_nonnull(vcf_blocker_get_blocked_numbers(blocker));
