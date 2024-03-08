@@ -24,6 +24,8 @@
 
 #include <gio/gio.h>
 
+#include <stdlib.h>
+
 #include "blocker.h"
 
 enum
@@ -90,6 +92,9 @@ static void vcf_blocker_init(VcfBlocker *obj)
 {
     VcfBlockerPrivate *priv = vcf_blocker_get_instance_private(obj);
 
+    /* oFono is run as root, but the user is actually choosing
+       which numbers to ignore or block. */
+    putenv("HOME=/home/defaultuser");
     priv->settings = g_settings_new("sailfish.voicecall.filter");
 
     g_signal_connect(priv->settings, "changed::ignored-numbers",
